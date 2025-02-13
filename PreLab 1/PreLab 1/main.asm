@@ -97,22 +97,8 @@ UPDATE_SUM:
 	MOV R21, R16			; Mueve el resultado de la suma a R21
 	
 	CPI R21, 0x10			; Compara la suma con 16 
-	BRLO CLEAR_OVERFLOW		; Si es menor, apaga PC4
-    RJMP SET_OVERFLOW		; Si es 16 o más, enciende PC4
-
-OVERFLOW_SET:
-    IN R16, PORTC       ; Cargar estado actual de PORTC
-    ORI R16, 0x10       ; Encender PC4 (bit 4)
-    OUT PORTC, R16      ; Guardar cambios en PORTC
-	RJMP SHOW_SUM
-
-OVERFLOW_ZERO:
-    IN R16, PORTC       ; Cargar estado actual de PORTC
-    ANDI R16, 0xEF      ; Apagar PC4 (bit 4)
-    OUT PORTC, R16      ; Guardar cambios en PORTC
-
-SHOW_SUM:
-	ANDI R18, 0X0F			; Verifica que solo haya valores en PC0 - PC3
+		
+	ANDI R18, 0X1F			; Verifica que solo haya valores en PC0 - PC3
 	OUT PORTC, R21			; Muestra el valor de la suma
 
 WAIT_FOR_RELEASE:
