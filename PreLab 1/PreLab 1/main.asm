@@ -29,11 +29,11 @@ START:
     OUT PORTB, R16      ; Habilita pull-ups en PB0 - PB4
     
     LDI R17, 0x00       ; Inicializa el contador en 0
-	LDI R19, 0x00		; Inicializa el contador en 1111
+	LDI R19, 0x00		; Inicializa el contador en 0
 	LDI R21, 0X00
 	RCALL UPDATE_LEDS
 
-
+; Revisar si los pushbuttons de los contadores estan presionado
 MAIN_LOOP:
     SBIC PINB, 0			 ; Si PB0 (incrementar) está en alto, salta
     RJMP CHECK_DEC			 ; Si no, verifica el botón de decremento
@@ -70,6 +70,7 @@ CHECK_DEC2:
     RCALL UPDATE_LEDS		 ; Actualiza los LEDs
     RCALL WAIT_FOR_RELEASE	 ; Espera a que se suelte el botón
 
+; Revisar si el push de la suma está presionado o no
 CHECK_SUM:
 	SBIC PINB, 4			; Si PB4 está en alto, salta	
 	RJMP MAIN_LOOP			; Si no, regresa al inicio
@@ -78,8 +79,9 @@ CHECK_SUM:
 	RCALL WAIT_FOR_RELEASE	; Esperar a que se suelte el boton
 	RJMP MAIN_LOOP			; Regresar al inicio
 
+; Mandar el valor de los contadores a las leds
 UPDATE_LEDS:
-    MOV R16, R17			; Mueve el valor de R17 a R16
+    MOV R16, R17			; Mueve el valor de R17 a R1
 	MOV	R20, R19			; Mueve el valor de R19 a R20
 	SWAP R20				; Mueve el valor de R20 a los 4 bits menos significativos
 	ANDI R18, 0XF0			; Verifica que solo haya valores en PD4 - PD7 
@@ -87,20 +89,18 @@ UPDATE_LEDS:
     OUT PORTD, R16			 ; Muestra el valor del contador en los LEDs
     RET
 
+; Reralizar la suma y el carry
 UPDATE_SUM:
     MOV R16, R17			; Mueve el valor de R17 a R16
-	MOV	R20, R19			; Mueve el valor de R19 a R20
-	SWAP R20				; Mueve el valor de R20 a los 4 bits menos significativos
-	ANDI R18, 0XF0			; Verifica que solo haya valores en PD4 - PD7 
 
 	ADD R16, R19			; Suma los valores de los contadores 
 	MOV R21, R16			; Mueve el resultado de la suma a R21
-	
-	CPI R21, 0x10			; Compara la suma con 16 
-		
-	ANDI R18, 0X1F			; Verifica que solo haya valores en PC0 - PC3
+			
+	ANDI R18, 0X1F			; Verifica que solo haya valores en PC0 - PC4
 	OUT PORTC, R21			; Muestra el valor de la suma
 
+
+; Revisar que no hayan pushbuttons presionados
 WAIT_FOR_RELEASE:
     SBIS PINB, 0
     RJMP WAIT_FOR_RELEASE
@@ -110,8 +110,11 @@ WAIT_FOR_RELEASE:
 	RJMP WAIT_FOR_RELEASE
     SBIS PINB, 3
     RJMP WAIT_FOR_RELEASE
+	SBIS PINB, 4
+    RJMP WAIT_FOR_RELEASE
     RET
 
+;Antirrebote
 DELAY:
     LDI     R18, 0xFF
 SUB_DELAY1:
@@ -124,8 +127,39 @@ SUB_DELAY2:
     CPI     R18, 0
     BRNE    SUB_DELAY2
     LDI     R18, 0xFF
+
 SUB_DELAY3:
     DEC     R18
     CPI     R18, 0
     BRNE    SUB_DELAY3
+	LDI     R18, 0xFF
+
+SUB_DELAY4:
+    DEC     R18
+    CPI     R18, 0
+    BRNE    SUB_DELAY4
+	LDI     R18, 0xFF
+
+ SUB_DELAY5:
+    DEC     R18
+    CPI     R18, 0
+    BRNE    SUB_DELAY5
+    LDI     R18, 0xFF
+
+ SUB_DELAY6:
+    DEC     R18
+    CPI     R18, 0
+    BRNE    SUB_DELAY6
+    LDI     R18, 0xFF
+
+SUB_DELAY7:
+    DEC     R18
+    CPI     R18, 0
+    BRNE    SUB_DELAY7
+    LDI     R18, 0xFF
+
+ SUB_DELAY8:
+    DEC     R18
+    CPI     R18, 0
+    BRNE    SUB_DELAY8
     RET
